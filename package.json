@@ -1,0 +1,17 @@
+{
+  "name": "crt-snake",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A retro CRT-styled Snake arcade game built with vanilla JavaScript and Canvas.",
+  "scripts": {
+    "test": "node tests/logic.test.js && node tests/game.test.js",
+    "serve": "npx --yes http-server . -p 5173 -c-1"
+  },
+  "keywords": [
+    "snake",
+    "canvas",
+    "arcade",
+    "game"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#080c07" />
+  <meta name="description" content="CRT Snake - a retro arcade snake game with bonus fruit, difficulty modes and high scores." />
+  <title>CRT SNAKE // arcade</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23080c07'/%3E%3Crect x='7' y='7' width='6' height='6' fill='%237dff6b'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%237dff6b'/%3E%3Crect x='19' y='19' width='6' height='6' fill='%237dff6b'/%3E%3Crect x='24' y='24' width='4' height='4' fill='%23ffb020'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="crt-vignette" aria-hidden="true"></div>
+  <div class="crt-scanlines" aria-hidden="true"></div>
+
+  <main class="cabinet">
+    <header class="marquee">
+      <h1 class="marquee__title">
+        <span class="marquee__snake" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h10a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8h12" />
+            <circle cx="19" cy="6" r="1.6" fill="currentColor" stroke="none" />
+          </svg>
+        </span>
+        C R T &nbsp;S N A K E
+      </h1>
+      <p class="marquee__sub">insert coin &middot; eat &middot; grow &middot; survive</p>
+    </header>
+
+    <section class="hud" aria-label="Scoreboard">
+      <div class="hud__cell">
+        <span class="hud__label">score</span>
+        <span class="hud__value" id="scoreValue">0</span>
+      </div>
+      <div class="hud__cell">
+        <span class="hud__label">best</span>
+        <span class="hud__value" id="bestValue">0</span>
+      </div>
+      <div class="hud__cell">
+        <span class="hud__label">length</span>
+        <span class="hud__value" id="lengthValue">3</span>
+      </div>
+      <div class="hud__cell">
+        <span class="hud__label">lvl</span>
+        <span class="hud__value" id="levelValue">1</span>
+      </div>
+    </section>
+
+    <div class="screen" id="screen">
+      <div class="screen__bezel">
+        <canvas id="gameCanvas" width="576" height="576" aria-label="Snake game board"></canvas>
+
+        <div class="overlay" id="overlayStart">
+          <div class="overlay__panel">
+            <h2 class="overlay__title">ready?</h2>
+            <p class="overlay__text">
+              Steer with <kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>.
+              Grab fruit, dodge the walls and your own tail.
+            </p>
+            <ul class="legend">
+              <li class="legend__item">
+                <span class="legend__dot legend__dot--fruit"></span> fruit <b>+10</b>
+              </li>
+              <li class="legend__item">
+                <span class="legend__dot legend__dot--bonus"></span> golden <b>+50</b> <em>(timed)</em>
+              </li>
+              <li class="legend__item">
+                <span class="legend__dot legend__dot--wall"></span> walls <b>deadly</b>
+              </li>
+            </ul>
+            <button class="btn btn--primary" id="btnStart" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
+              press start
+            </button>
+          </div>
+        </div>
+
+        <div class="overlay" id="overlayCountdown" hidden>
+          <div class="countdown" id="countdownValue">3</div>
+        </div>
+
+        <div class="overlay" id="overlayPause" hidden>
+          <div class="overlay__panel">
+            <h2 class="overlay__title">paused</h2>
+            <p class="overlay__text">Take a breath. The snake will wait.</p>
+            <button class="btn btn--primary" id="btnResume" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
+              resume
+            </button>
+          </div>
+        </div>
+
+        <div class="overlay" id="overlayGameOver" hidden>
+          <div class="overlay__panel">
+            <h2 class="overlay__title overlay__title--danger" id="gameOverTitle">game over</h2>
+            <p class="overlay__cause" id="gameOverCause">you hit the wall</p>
+            <dl class="results">
+              <div class="results__row">
+                <dt>score</dt>
+                <dd id="finalScore">0</dd>
+              </div>
+              <div class="results__row">
+                <dt>best</dt>
+                <dd id="finalBest">0</dd>
+              </div>
+              <div class="results__row">
+                <dt>length</dt>
+                <dd id="finalLength">3</dd>
+              </div>
+            </dl>
+            <p class="record" id="recordBadge" hidden>new record!</p>
+            <button class="btn btn--primary" id="btnRestart" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.6 5.9" /><path d="M20 5v6h-6" />
+              </svg>
+              play again
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p class="screen__hint" id="screenHint">press <kbd>space</kbd> to pause &middot; <kbd>r</kbd> to restart</p>
+    </div>
+
+    <nav class="controls" aria-label="Game controls">
+      <div class="controls__group controls__group--dpad" aria-label="Direction pad">
+        <button class="pad pad--up" data-dir="up" type="button" aria-label="Move up">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="M5 12l7-7 7 7" /></svg>
+        </button>
+        <button class="pad pad--left" data-dir="left" type="button" aria-label="Move left">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5" /><path d="M12 5l-7 7 7 7" /></svg>
+        </button>
+        <button class="pad pad--down" data-dir="down" type="button" aria-label="Move down">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14" /><path d="M19 12l-7 7-7-7" /></svg>
+        </button>
+        <button class="pad pad--right" data-dir="right" type="button" aria-label="Move right">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+
+      <div class="controls__group controls__group--actions">
+        <button class="btn btn--ghost" id="btnPause" type="button" aria-label="Pause or resume">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3.6" height="14" /><rect x="13.4" y="5" width="3.6" height="14" /></svg>
+          <span id="pauseLabel">pause</span>
+        </button>
+        <button class="btn btn--ghost" id="btnSound" type="button" aria-pressed="true" aria-label="Toggle sound">
+          <svg class="icon-sound-on" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9v6h3l5 4V5L7 9z" /><path d="M16.5 8.5a5 5 0 0 1 0 7" /><path d="M19 6a8.5 8.5 0 0 1 0 12" />
+          </svg>
+          <svg class="icon-sound-off" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9v6h3l5 4V5L7 9z" /><path d="M17 9.5l4 5" /><path d="M21 9.5l-4 5" />
+          </svg>
+          <span id="soundLabel">sound</span>
+        </button>
+      </div>
+    </nav>
+
+    <section class="settings" aria-label="Game settings">
+      <div class="setting">
+        <span class="setting__label" id="difficultyLabel">difficulty</span>
+        <div class="segmented" role="group" aria-labelledby="difficultyLabel" id="difficultyGroup">
+          <button class="segmented__btn" data-difficulty="chill" type="button">chill</button>
+          <button class="segmented__btn is-active" data-difficulty="classic" type="button">classic</button>
+          <button class="segmented__btn" data-difficulty="insane" type="button">insane</button>
+        </div>
+      </div>
+      <div class="setting">
+        <span class="setting__label" id="wallsLabel">walls</span>
+        <div class="segmented" role="group" aria-labelledby="wallsLabel" id="wallsGroup">
+          <button class="segmented__btn is-active" data-walls="solid" type="button">solid</button>
+          <button class="segmented__btn" data-walls="wrap" type="button">wrap</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="best-line">personal best <b id="bestLineValue">0</b> &middot; <button class="linkbtn" id="btnResetBest" type="button">reset</button></p>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/snake.js"></script>
+  <script src="js/food.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
