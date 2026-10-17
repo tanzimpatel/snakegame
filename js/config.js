@@ -1,3 +1,17 @@
+let adController;
+
+// Initialize the Google H5 SDK
+window.adsbygoogle = window.adsbygoogle || [];
+adsbygoogle.push({
+  params: {
+    google_ad_client: 'ca-pub-XXXXXXXXXXXXXXXX',
+    google_ad_channel: 'XXXXXXXXXX'
+  },
+  onload: (controller) => {
+    adController = controller;
+    console.log("Google H5 Ads SDK successfully loaded.");
+  }
+});
 /**
  * config.js - static tuning values for CRT Snake.
  * Everything that a designer might want to tweak lives here.
