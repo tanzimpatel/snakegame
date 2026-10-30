@@ -551,15 +551,20 @@ kbd {
 /* ---------- Controls ----------------------------------------------------- */
 
 .controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
-  flex-wrap: wrap;
+}
+
+.controls__group--dpad {
+  grid-column: 2;
 }
 
 .controls__group--actions {
   display: flex;
+  grid-column: 3;
+  justify-self: end;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -717,7 +722,14 @@ kbd {
   }
 
   .controls {
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
+  }
+
+  .controls__group--dpad,
+  .controls__group--actions {
+    grid-column: 1;
+    justify-self: center;
   }
 
   .pad {
